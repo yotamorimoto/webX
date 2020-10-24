@@ -1,5 +1,3 @@
-import { choose } from './random.js'
-
 class Panner {
   constructor(pan) {
     // safari has no stereo panner
@@ -36,6 +34,13 @@ function connect(...nodes) {
     nodes[i].connect(nodes[i+1]);
   }
 }
+function disposeAt(time, ...nodes) {
+  const now = context.currentTime + time;
+  for (let n in nodes) { n.stop(now) }
+  setTimeout(function(){
+    for (let n in nodes) { n.disconnect() }
+  }, now*1000+1000);
+}
 
 export function Sine(freq,amp,pan,res) {
   const vco = context.createOscillator();
@@ -49,17 +54,16 @@ export function Sine(freq,amp,pan,res) {
   vco.start();
   env.trigger(0.01, 1.5);
   // gc
-  vco.stop(context.currentTime + 2);
-  setTimeout(function(){ vco.disconnect() }, 3000);
+  disposeAt(2, vco);
 }
 
 export function FM2(freq,amp,pan,res,u,v,w,x,y,z) {
   const car = context.createOscillator();
   const mod = context.createOscillator();
+  const out = context.createGain();
   const idx = new EGPerc(u*600+700, z*200+220);
   const env = new EGPerc(amp);
   const panner = new Panner(pan);
-  const out = context.createGain();
   car.frequency.value = freq;
   mod.frequency.value = freq * [2, 1.5, 1][Math.round(w+1)];
   set_xfade(out, bus, res);
@@ -71,10 +75,5 @@ export function FM2(freq,amp,pan,res,u,v,w,x,y,z) {
   idx.trigger(x*x+0.01, 2);
   env.trigger(v*v+0.01, 2);
   // gc
-  car.stop(context.currentTime + 3);
-  mod.stop(context.currentTime + 3);
-  setTimeout(function(){
-    car.disconnect();
-    mod.disconnect();
-  }, 4000);
+  disposeAt(3, car, mod);
 }
