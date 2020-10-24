@@ -8,6 +8,7 @@ window.context = null;
 window.master = null;
 window.verb = null;
 window.bus = null;
+window.seed = Date.now(); // or overwrite
 const playButton = document.getElementById('play');
 const sldrVolume = document.getElementById('volume');
 const sldrSpeed = document.getElementById('speed');
