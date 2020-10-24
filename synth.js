@@ -35,11 +35,11 @@ function connect(...nodes) {
   }
 }
 function trashAt(time, ...nodes) {
-  const now = context.currentTime + time;
-  for (let n in nodes) { n.stop(now) }
+  const when = context.currentTime + time;
+  for (let i=0; i<nodes.length; i++) { nodes[i].stop(when) }
   setTimeout(function(){
-    for (let n in nodes) { n.disconnect() }
-  }, now*1000+1000);
+    for (let i=0; i<nodes.length; i++) { nodes[i].disconnect() }
+  }, when*1000+1000);
 }
 
 export function Sine(freq,amp,pan,res) {
