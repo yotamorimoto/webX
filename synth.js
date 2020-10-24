@@ -34,7 +34,7 @@ function connect(...nodes) {
     nodes[i].connect(nodes[i+1]);
   }
 }
-function disposeAt(time, ...nodes) {
+function trashAt(time, ...nodes) {
   const now = context.currentTime + time;
   for (let n in nodes) { n.stop(now) }
   setTimeout(function(){
@@ -54,7 +54,7 @@ export function Sine(freq,amp,pan,res) {
   vco.start();
   env.trigger(0.01, 1.5);
   // gc
-  disposeAt(2, vco);
+  trashAt(2, vco);
 }
 
 export function FM2(freq,amp,pan,res,u,v,w,x,y,z) {
@@ -75,5 +75,5 @@ export function FM2(freq,amp,pan,res,u,v,w,x,y,z) {
   idx.trigger(x*x+0.01, 2);
   env.trigger(v*v+0.01, 2);
   // gc
-  disposeAt(3, car, mod);
+  trashAt(3, car, mod);
 }
