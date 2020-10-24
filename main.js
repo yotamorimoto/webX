@@ -4,6 +4,7 @@ import { Sine, FM2 }  from './synth.js'
 import { Brown } from './brown.js'
 import { Trig, Changed, PulseDivide } from './trig.js'
 // global scope for graph creation
+window.AudioContext = window.AudioContext || window.webkitAudioContext;
 window.context = null;
 window.master = null;
 window.verb = null;
@@ -21,7 +22,7 @@ sldrStep.value = 0.5;
 sldrG.value = 0.3;
 sldrResonance.value = 0.5;
 sldrVolume.oninput = function() {
-  master.gain.value = sc.dbamp(sc.lin(this.value, -30, 6));
+  master.gain.value = sc.dbamp(sc.lin1(this.value, -30, 6));
 };
 async function makeResonance(){
   let convolver = context.createConvolver();
@@ -32,7 +33,6 @@ async function makeResonance(){
 }
 function init() {
   try {
-    window.AudioContext = window.AudioContext || window.webkitAudioContext || window.mozAudioContext || window.oAudioContext;
     context = new AudioContext({ latencyHint: 2048/44100 });
     (async ()=> {
       verb   = await makeResonance();
@@ -41,7 +41,7 @@ function init() {
       bus.connect(verb);
       verb.connect(master);
       master.connect(context.destination);
-      master.gain.value = sc.dbamp(sc.lin(sldrVolume.value, -30, 6));
+      master.gain.value = sc.dbamp(sc.lin1(sldrVolume.value, -30, 6));
       setTimeout(function tick(){ loop(); setTimeout(tick, sc.linexp(sldrSpeed.value,0,1,800,80)) }, 1000);
     })();
   } catch(e) { alert(e) }
@@ -78,18 +78,18 @@ const changed1 = Changed();
 const mTrig = Trig();
 const mPDiv = PulseDivide();
 let b = brown.next(
-  sc.lin(sldrStep.value,0.05,1.0),
-  sc.lin(sldrG.value,0.1,1.1)
+  sc.lin1(sldrStep.value,0.05,1.0),
+  sc.lin1(sldrG.value,0.1,1.1)
 );
-let m = mode[sc.fastRound(sc.lin2(b[0],0,20))%(mode.length-1)];
+let m = mode[sc.round(sc.lin2(b[0],0,20))%(mode.length-1)];
 
 function loop() {
   b = brown.next(
-    sc.lin(sldrStep.value,0.05,1.0),
-    sc.lin(sldrG.value,0.1,1.1)
+    sc.lin1(sldrStep.value,0.05,1.0),
+    sc.lin1(sldrG.value,0.1,1.1)
   );
   if(mPDiv(mTrig(b[1]), 6)) {
-    m = mode[sc.fastRound(sc.lin2(b[2],0,20))%(mode.length-1)];
+    m = mode[sc.round(sc.lin2(b[2],0,20))%(mode.length-1)];
     console.log(m);
   }
   if(trig0(b[10])) {

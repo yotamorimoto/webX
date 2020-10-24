@@ -1,12 +1,13 @@
 // very fast round
-export const fastRound = a => (a + (a > 0 ? 0.5 : -0.5)) << 0;
-export const fastIntDiv = (a, b) => a / b >> 0;
+export const round = a => (a + (a > 0 ? 0.5 : -0.5)) << 0;
+// fast int division
+export const idiv = (a, b) => a / b >> 0;
 
 // degree to midi key
 export const deg2key = (degree, mode) => {
   const size = mode.length;
-  const deg = fastRound(degree);
-  return (12 * fastIntDiv(deg, size)) + mode[deg % size];
+  const deg = round(degree);
+  return (12 * idiv(deg, size)) + mode[deg % size];
 };
 
 export const fold = (x, lo, hi) => {
@@ -16,7 +17,7 @@ export const fold = (x, lo, hi) => {
   const w = mod(x, r);
   return (mod(x / r, 2) > 1) ? (hi - w) : (lo + w);
 };
-
+// bipolar out
 export const fold2 = a => fold(a, -1, 1);
 
 export const midiratio = midi => Math.pow(2.0, midi * 0.083333333333);
@@ -38,9 +39,9 @@ export const linlin = (x, a, b, c, d) => {
   }
   return (x - a) / (b - a) * (d - c) + c;
 };
-
-export const lin = (x, lo, hi) => linlin(x, 0, 1, lo, hi);
-
+// unipolar in
+export const lin1 = (x, lo, hi) => linlin(x, 0, 1, lo, hi);
+// bipolar in
 export const lin2 = (x, lo, hi) => linlin(x, -1, 1, lo, hi);
 
 export const linexp = (x, a, b, c, d) => {
