@@ -1,14 +1,16 @@
 import { series, midiratio } from './sc.js'
 
 export class Sample {
-  constructor(n, lowest, highest, path) {
+  constructor(n) {
     this.buffers = new Array(n);
     this.map = new Array(128);
-    const dict = new Array(n);
+  }
+  read(lowest, highest, path) {
+    const dict = new Array(this.buffers.length);
     const up = 2;
     const down = 4;
     const interval = up + 1 + down;
-    async function load(buffers, map) {
+    async function load2(buffers, map) {
       for (let i=0; i<buffers.length; i++) {
         let res = await fetch(path + i + '.mp3');
         let buf = await res.arrayBuffer();
@@ -28,7 +30,7 @@ export class Sample {
         bufindex++;
       }
     };
-    load(this.buffers, this.map);
+    return load2(this.buffers, this.map);
   }
-  // trash { this.buffers = this.map = null }
+  trash() { this.buffers = this.map = null }
 }

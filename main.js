@@ -39,8 +39,10 @@ function init() {
     context = new AudioContext({ latencyHint: 2048/44100 });
     (async ()=> {
       verb   = await makeResonance();
-      sample1 = new Sample(9, 28, 84, './sample/tweed/');
-      sample2 = new Sample(12, 21, 98, './sample/felt/');
+      sample1 = new Sample(9);
+      await sample1.read(28, 84, './sample/tweed/');
+      sample2 = new Sample(12);
+      await sample2.read(21, 98, './sample/felt/')
       master = context.createGain();
       bus    = context.createGain();
       bus.connect(verb);
