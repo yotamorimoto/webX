@@ -1,3 +1,6 @@
+// series
+function *range(start, stop, step=1) { for (let n=start; n<stop; n+=step ) yield n }
+export const series = (start, stop, step=1) => Array.from(range(start,stop,step));
 // very fast round
 export const round = a => (a + (a > 0 ? 0.5 : -0.5)) << 0;
 // fast int division

@@ -1,6 +1,7 @@
 import * as sc from './sc.js'
 import { choose } from './random.js'
-import { Sine, FM2 }  from './synth.js'
+import { Sample } from './sample.js'
+import { Tweed, Felt }  from './synth.js'
 import { Brown } from './brown.js'
 import { Trig, Changed, PulseDivide } from './trig.js'
 // global scope for graph creation
@@ -9,6 +10,8 @@ window.context = null;
 window.master = null;
 window.verb = null;
 window.bus = null;
+window.sample1 = null;
+window.sample2 = null;
 window.seed = Date.now(); // or overwrite
 const playButton = document.getElementById('play');
 const sldrVolume = document.getElementById('volume');
@@ -17,10 +20,10 @@ const sldrStep = document.getElementById('step');
 const sldrG = document.getElementById('g');
 const sldrResonance = document.getElementById('resonance');
 sldrVolume.value = 0.8;
-sldrSpeed.value = 0.4;
-sldrStep.value = 0.5;
-sldrG.value = 0.3;
-sldrResonance.value = 0.5;
+sldrSpeed.value = 0.55;
+sldrStep.value = 0.8;
+sldrG.value = 1;
+sldrResonance.value = 0.3;
 sldrVolume.oninput = function() {
   master.gain.value = sc.dbamp(sc.lin1(this.value, -30, 6));
 };
@@ -36,6 +39,8 @@ function init() {
     context = new AudioContext({ latencyHint: 2048/44100 });
     (async ()=> {
       verb   = await makeResonance();
+      sample1 = new Sample(9, 28, 84, './sample/tweed/');
+      sample2 = new Sample(12, 21, 98, './sample/felt/');
       master = context.createGain();
       bus    = context.createGain();
       bus.connect(verb);
@@ -51,22 +56,23 @@ playButton.onclick = function(){
   init();
 }
 
-const root = choose([21,22,23,24,25,26]);
-const melodicminor = new Uint8Array([0,2,3,5,7,9,11]);
-const locrian = new Uint8Array([0,1,3,5,6,8,10]);
-const phrygian = new Uint8Array([0,1,3,5,7,8,10]);
-const aeolian = new Uint8Array([0,2,3,5,7,8,10]);
-const dorian = new Uint8Array([0,2,3,5,7,9,10]);
-const ionian = new Uint8Array([0,2,4,5,7,9,11]);
-const mixolydian =  new Uint8Array([0,2,4,5,7,9,10]);
-const lydian = new Uint8Array([0,2,4,6,7,9,11]);
+const root = 10;
+const melodicminor = [0,2,3,5,7,9,11];
+const locrian = [0,1,3,5,6,8,10];
+const phrygian = [0,1,3,5,7,8,10];
+const aeolian = [0,2,3,5,7,8,10];
+const dorian = [0,2,3,5,7,9,10];
+const ionian = [0,2,4,5,7,9,11];
+const mixolydian = [0,2,4,5,7,9,10];
+const lydian = [0,2,4,6,7,9,11];
 const mode = [
   // melodicminor,
-  locrian,
-  phrygian,
+  // locrian,
+  // phrygian,
   // aeolian,
   // dorian,
-  // ionian,
+  ionian,
+  ionian,
   // mixolydian,
   // lydian
 ];
@@ -93,14 +99,15 @@ function loop() {
     console.log(m);
   }
   if(trig0(b[10])) {
-    const note = sc.deg2key(sc.lin2(b[11],20,30), m) + root;
+    const note = sc.deg2key(sc.lin2(b[11],23,40), m) + root;
     if(changed0(note)) {
-      FM2(
-        sc.midicps(note),
-        sc.dbamp(sc.lin2(b[12], -24, -9)),
+      Tweed(
+        sample1,
+        note,
+        sc.dbamp(sc.lin2(b[12], 0, 9)),
         b[13],
         sldrResonance.value,
-        b[14],
+        sc.lin2(b[14], 0.05, 0),
         b[15],
         b[16],
         b[17],
@@ -110,19 +117,20 @@ function loop() {
     };
   };
   if(trig1(b[20])) {
-    const note = sc.deg2key(sc.lin2(b[21],30,40), m) + root;
+    const note = sc.deg2key(sc.lin2(b[21],20,60), m) + root;
     if(changed1(note)) {
-      FM2(
-        sc.midicps(note),
-        sc.dbamp(sc.lin2(b[22], -24, -9)),
-        b[23],
+      Felt(
+        sample2,
+        note,
+        sc.dbamp(sc.lin2(b[12], 0, 9)),
+        (b[13]*10)%1*0.5,
         sldrResonance.value,
-        b[24],
-        b[25],
-        b[26],
-        b[27],
-        b[28],
-        b[29]
+        sc.lin2(b[14], 0.1, 0),
+        b[15],
+        b[16],
+        b[17],
+        b[18],
+        b[19],
       );
     };
   };
