@@ -14,7 +14,7 @@ export class Sample {
       for (let i=0; i<buffers.length; i++) {
         let res = await fetch(path + i + '.mp3');
         let buf = await res.arrayBuffer();
-        buffers[i] = await context.decodeAudioData(buf);
+        context.decodeAudioData(buf, (b)=>{buffers[i]=b}, (e)=>{reject(e)});
         buf = res = null;
       };
       for (let i=0,note=lowest; i<buffers.length; i++,note+=interval) {
